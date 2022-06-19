@@ -2,7 +2,7 @@
 	"name": "notes-importer",
 	"title": "Importer for the markdown to foundry notes cli tool",
 	"description": "Obsidian Integration",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"author": "Codas",
 	"scripts": ["bundle.js"],
 	"styles": ["notes-importer.css"],
@@ -11,5 +11,5 @@
 	"compatibleCoreVersion": "9",
 	"url": "https://github.com/Codas/foundry-notes-importer",
 	"manifest": "https://raw.githubusercontent.com/Codas/foundry-notes-importer/master/Source/module.json",
-	"download": "https://raw.githubusercontent.com/Codas/foundry-notes-importer/v0.1.1/dist/notes-importer-v0.1.1.zip"
+	"download": "https://raw.githubusercontent.com/Codas/foundry-notes-importer/v0.1.2/dist/notes-importer-v0.1.2.zip"
 }
