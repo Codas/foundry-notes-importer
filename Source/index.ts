@@ -1,14 +1,16 @@
 import Logger from "./Utils/Logger";
-import PreloadTemplates from "./PreloadTemplates";
-import { RegisterSettings } from "./Utils/Settings";
+import { preloadTemplates } from "./PreloadTemplates";
+import { registerSettings } from "./Utils/Settings";
+import { registerSidebarActions } from "./importer/registerSidebarActions";
 
 Hooks.once("init", async () => {
-	RegisterSettings();
-	await PreloadTemplates();
+	registerSettings();
+	registerSidebarActions();
+	await preloadTemplates();
 });
 
 Hooks.once("setup", () => {
-	Logger.Log("Template module is being setup.")
+	Logger.Log("Template module is being setup.");
 });
 
 Hooks.once("ready", () => {

@@ -1,57 +1,63 @@
-import Globals, {Assert, Pair} from "../Globals";
+import Globals, { Assert, Pair } from "../Globals";
 import Logger from "./Logger";
 
-class Settings {
+class ModuleSettings {
 	private constructor() {
-		Logger.Ok("Loading configuration settings.")
-		this.SettingsList = [
-			// Add settings items here
-			[ValidSetting.CoolDm, {
-				name: "Is the DM Cool?",
-				scope: "world", // or client
-				type: Boolean,
-				hint: "Really think about it... is the DM cool?",
-				config: true, // It should appear in the configuration menu
-				default: false, // The DM is NOT cool by default
-				onChange: val => Logger.Ok("It has been deemed that the DM is " + (val ? "" : "NOT ") + "cool!"),
-			}]
-		];
+		Logger.Ok("Loading configuration settings.");
 	}
 
-	private static instance: Settings;
+	private static instance: ModuleSettings;
 
-	public static Get(): Settings {
-		if (Settings.instance)
-			return Settings.instance;
+	public static get(): ModuleSettings {
+		if (ModuleSettings.instance) return ModuleSettings.instance;
 
-		Settings.instance = new Settings();
-		return Settings.instance;
+		ModuleSettings.instance = new ModuleSettings();
+		return ModuleSettings.instance;
 	}
 
 	private SettingsInit = false;
-	public RegisterSettings(): void {
-		if (this.SettingsInit)
-			return;
+	public registerSettings(): void {
+		if (this.SettingsInit) return;
 
 		Assert(game instanceof Game);
 		const g = game as Game;
-		this.SettingsList.forEach((item) => {
+		this.settingsList.forEach((item) => {
 			g.settings.register(Globals.ModuleName, item[0], item[1]);
 		});
 
 		this.SettingsInit = true;
 	}
 
-	readonly SettingsList: ReadonlyArray<Pair<ClientSettings.PartialSetting>>;
+	readonly settingsList = [
+		// Add settings items here
+		[
+			ValidSetting.NotesDirectory,
+			{
+				name: "Notes directory?",
+				scope: "world", // or client
+				type: String,
+				hint: "The folder that compiled note files are uploaded to",
+				config: true, // It should appear in the configuration menu
+				default: "imported-notes", // The DM is NOT cool by default
+				filePicker: "folder",
+				onChange: (val: unknown) => Logger.Ok(`data path: ${val}`),
+			},
+		] as Pair<ClientSettings.PartialSetting<string>>,
+	];
 }
 
-export const RegisterSettings = (): void => Settings.Get().RegisterSettings();
+export const registerSettings = (): void => ModuleSettings.get().registerSettings();
 
-export enum ValidSetting {
-	CoolDm = "coolDm"
+export const enum ValidSetting {
+	NotesDirectory = "NotesDirectory",
 }
 
-export const GetSetting = <T>(setting: ValidSetting): T | null => {
-	const found = Settings.Get().SettingsList.find(x => x[0] === setting);
-	return found ? found[1] as unknown as T : null;
-}
+export const getSetting = <T>(setting: ValidSetting): T | null => {
+	const found = ModuleSettings.get().settingsList.find((x) => x[0] === setting);
+	return found ? (found[1] as unknown as T) : null;
+};
+
+export const readSetting = <T>(setting: ValidSetting): T | null => {
+	const g = game as Game;
+	return g.settings.get(Globals.ModuleName, setting) as unknown as T | null;
+};

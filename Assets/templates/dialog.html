@@ -1,0 +1,16 @@
+<form>
+    <div class="form-group">
+        {{log this}}
+        <label for="selectedAdventure">Adventure</label>
+
+        <div class="form-fields">
+            <select name="selectedAdventure">
+                {{selectOptions adventures blank="Please select" selected=selectedAdventure localize=false}}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <button type="submit" name="submit" value="submit">OK</button>
+        <button type="cancel" name="cancel" value="cancel">Cancel</button>
+    </div>
+</form>
