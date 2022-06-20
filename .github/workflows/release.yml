@@ -1,0 +1,59 @@
+name: Test and release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    # Waits for test jobs for each Node.js version to complete
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: "true"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3.3.0
+        with:
+          node-version: 16.x
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build:prod
+
+      # Substitute the Manifest and Download URLs in the module.json
+      - name: Substitute Manifest and Download Links For Versioned Ones
+        id: sub_manifest_link_version
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: "./dist/module.json"
+        env:
+          version: ${{steps.get_version.outputs.version-without-v}}
+          url: https://github.com/${{github.repository}}
+          manifest: https://github.com/${{github.repository}}/releases/latest/download/module.json
+          download: https://github.com/${{github.repository}}/releases/download/${{github.event.release.tag_name}}/module.zip
+
+      # create a zip file with all files required by the module to add to the release
+      - name: Zip Files
+        working-directory: ./dist
+        run: zip -r ./module.zip ./*
+
+      # Create a release for this specific version
+      - name: Create Release
+        id: create_version_release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true # set this to false if you want to prevent updating existing releases
+          name: ${{ steps.get_version.outputs.version }}
+          body: |
+            ${{ steps.changelog.outputs.clean_changelog }}
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "./dist/module.json,./dist/module.zip"
+          tag_name: ${{ steps.get_version.outputs.version }}
